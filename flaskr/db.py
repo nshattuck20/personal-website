@@ -13,7 +13,7 @@ def get_db():
 			)
 		g.db.row_factory = sqlite3.Row 
 
-	retrun g.db
+	return g.db
 # close the DB
 def close_db(e=None): 
 	db = g.pop('db', None)
@@ -26,7 +26,7 @@ def init_db():
 	db = get_db()
 
 	with current_app.open_resource('schema.sql') as f: 
-		db executesscript(f.read.decode('utf8'))
+		db.executescript(f.read().decode('utf8'))
 
 
 @click.command('init-db')
@@ -34,4 +34,11 @@ def init_db():
 def init_db_command(): 
 	"""Clear the existing data and create new tables"""
 	init_db()
-	click.echo('Initialized the database') 
+	click.echo('Initialized the database.') 
+
+def init_app(app):
+	""" Performs app registration.
+		Enables use of inti_db and close_db
+	"""
+	app.teardown_appcontext(close_db)
+	app.cli.add_command(init_db_command)
